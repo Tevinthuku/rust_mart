@@ -45,10 +45,24 @@ impl Product {
             .get_result(conn)
     }
 
-    pub fn find_by_id(
+    pub fn find_product_quantity_available_by_id(
         id: uuid::Uuid,
         conn: &mut PgConnection,
-    ) -> Result<Product, diesel::result::Error> {
-        product::table.find(id).first(conn)
+    ) -> Result<i32, diesel::result::Error> {
+        product::table
+            .select(product::quantity_available)
+            .find(id)
+            .first(conn)
+    }
+
+    pub fn increment_quantity_available(
+        id: uuid::Uuid,
+        increment: i32,
+        conn: &mut PgConnection,
+    ) -> Result<(), diesel::result::Error> {
+        diesel::update(product::table.find(id))
+            .set(product::quantity_available.eq(product::quantity_available + increment))
+            .execute(conn)
+            .map(|_| ())
     }
 }

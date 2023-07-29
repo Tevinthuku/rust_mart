@@ -22,6 +22,10 @@ pub enum ApiError {
 }
 
 impl ApiError {
+    pub fn new_validation(error: impl Display) -> Self {
+        warn!("Validation error: {error}");
+        ApiError::ValidationError(error.to_string())
+    }
     pub fn new_internal(error: anyhow::Error) -> Self {
         error!("Internal error: {error:?}");
         ApiError::InternalError(error)

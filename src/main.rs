@@ -2,6 +2,7 @@ pub mod errors;
 pub mod pool;
 mod product;
 pub mod schema;
+pub mod cart;
 use std::io;
 
 use actix_web::{middleware::Logger, web, App, HttpServer};

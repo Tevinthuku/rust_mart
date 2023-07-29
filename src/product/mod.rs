@@ -1,4 +1,4 @@
-mod model;
+pub mod model;
 
 use crate::{errors::ApiError, pool::DbPool};
 use actix_web::web;
