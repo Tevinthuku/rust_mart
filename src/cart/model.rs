@@ -4,15 +4,21 @@ use crate::{
     schema::{cart, cart_item},
 };
 use chrono::{DateTime, Utc};
-use diesel::prelude::*;
+use diesel::{insert_into, prelude::*};
 use diesel::{Identifiable, Insertable, PgConnection, QueryDsl};
-#[derive(Identifiable, Insertable)]
+use serde::Deserialize;
+#[derive(Identifiable, Deserialize, Selectable, Queryable)]
 #[diesel(table_name = cart)]
-pub struct Cart {
+struct Cart {
     id: uuid::Uuid,
 }
 
 impl Cart {
+    fn new_cart(conn: &mut PgConnection) -> Result<Cart, diesel::result::Error> {
+        insert_into(cart::table)
+            .default_values()
+            .get_result::<Cart>(conn)
+    }
     fn remove_cart_item(
         cart_item: uuid::Uuid,
         conn: &mut PgConnection,
@@ -70,7 +76,7 @@ pub struct CartItem {
 
 #[derive(AsChangeset, Identifiable, Copy, Clone)]
 #[diesel(table_name = cart_item)]
-pub struct CartItemQuantityUpdate {
+struct CartItemQuantityUpdate {
     id: uuid::Uuid,
     quantity: i32,
 }
@@ -97,5 +103,27 @@ impl CartItem {
         update
             .save_changes::<CartItem>(conn)
             .map_err(ApiError::from)
+    }
+}
+
+pub struct CartItemModel {
+    id: uuid::Uuid,
+    quantity: u32,
+    product_id: uuid::Uuid,
+    added_at: DateTime<Utc>,
+}
+
+pub struct CartModel {
+    pub id: uuid::Uuid,
+    pub cart_items: Vec<CartItemModel>,
+}
+
+impl CartModel {
+    pub fn create_cart(conn: &mut PgConnection) -> Result<CartModel, diesel::result::Error> {
+        let cart = Cart::new_cart(conn)?;
+        Ok(CartModel {
+            id: cart.id,
+            cart_items: Default::default(),
+        })
     }
 }
