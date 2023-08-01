@@ -107,10 +107,10 @@ impl CartItem {
 }
 
 pub struct CartItemModel {
-    id: uuid::Uuid,
-    quantity: u32,
-    product_id: uuid::Uuid,
-    added_at: DateTime<Utc>,
+    pub id: uuid::Uuid,
+    pub quantity: u32,
+    pub product_id: uuid::Uuid,
+    pub added_at: DateTime<Utc>,
 }
 
 pub struct CartModel {

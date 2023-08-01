@@ -14,7 +14,7 @@ struct CartResponse {
 struct CartItemResponse {
     id: uuid::Uuid,
     product_id: uuid::Uuid,
-    quantity: i32,
+    quantity: u32,
 }
 
 async fn create_cart(pool: web::Data<DbPool>) -> Result<web::Json<CartResponse>, ApiError> {
