@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "rust_project_structure"
+name = "rust_mart"
 version = "0.1.0"
