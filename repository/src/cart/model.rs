@@ -1,8 +1,5 @@
-use crate::product::model::Product;
-use crate::{
-    errors::ApiError,
-    schema::{cart, cart_item},
-};
+use crate::schema::{cart, cart_item};
+use crate::{errors::RepositoryError, product::model::Product};
 use chrono::{DateTime, Utc};
 use diesel::{insert_into, prelude::*};
 use diesel::{Identifiable, Insertable, PgConnection, QueryDsl};
@@ -40,18 +37,18 @@ impl Cart {
     fn add_cart_item(
         cart_item: CartItemInput,
         conn: &mut PgConnection,
-    ) -> Result<CartItem, ApiError> {
+    ) -> Result<CartItem, RepositoryError> {
         let product_available_quantity =
             Product::find_product_quantity_available_by_id(cart_item.product_id, conn)?;
         if product_available_quantity < cart_item.quantity {
-            return Err(ApiError::new_validation(
-                "Quantity requested is not available",
-            ));
+            return Err(RepositoryError::new_validation(anyhow::anyhow!(
+                "Quantity requested is not available"
+            )));
         }
         cart_item
             .insert_into(cart_item::table)
             .get_result::<CartItem>(conn)
-            .map_err(ApiError::from)
+            .map_err(RepositoryError::from)
     }
 }
 
@@ -85,7 +82,7 @@ impl CartItem {
     fn update_quantity(
         update: CartItemQuantityUpdate,
         conn: &mut PgConnection,
-    ) -> Result<Self, ApiError> {
+    ) -> Result<Self, RepositoryError> {
         use crate::schema::product;
         use crate::schema::product::dsl::*;
 
@@ -96,13 +93,13 @@ impl CartItem {
             .first::<(i32, i32)>(conn)?;
         let overall_quantity_available = product_quantity_available + existing_cart_item_quantity;
         if update.quantity > overall_quantity_available {
-            return Err(ApiError::new_validation(
-                "The quantity requested is not available",
-            ));
+            return Err(RepositoryError::new_validation(anyhow::anyhow!(
+                "The quantity requested is not available"
+            )));
         }
         update
             .save_changes::<CartItem>(conn)
-            .map_err(ApiError::from)
+            .map_err(RepositoryError::from)
     }
 }
 

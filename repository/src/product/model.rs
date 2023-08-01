@@ -20,9 +20,9 @@ pub struct Product {
 #[derive(Deserialize, Insertable, Clone)]
 #[diesel(table_name = product)]
 pub struct ProductInput {
-    name: String,
-    description: String,
-    quantity_on_hand: i32,
+    pub name: String,
+    pub description: String,
+    pub quantity_on_hand: i32,
 }
 
 impl Product {

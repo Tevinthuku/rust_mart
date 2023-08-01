@@ -5,7 +5,9 @@ use actix_web::{
 };
 use anyhow::anyhow;
 use log::{error, warn};
+use repository::errors::RepositoryError;
 use serde_json::json;
+use std::fmt::Debug;
 use std::fmt::Display;
 use thiserror::Error;
 
@@ -22,8 +24,8 @@ pub enum ApiError {
 }
 
 impl ApiError {
-    pub fn new_validation(error: impl Display) -> Self {
-        warn!("Validation error: {error}");
+    pub fn new_validation(error: impl Display + Debug) -> Self {
+        warn!("Validation error: {error:?}");
         ApiError::ValidationError(error.to_string())
     }
     pub fn new_internal(error: anyhow::Error) -> Self {
@@ -31,9 +33,9 @@ impl ApiError {
         ApiError::InternalError(error)
     }
 
-    fn new_conflict(error: impl Display) -> Self {
+    fn new_conflict(error: impl Display + Debug) -> Self {
         let error = error.to_string();
-        warn!("Conflict: {error}");
+        warn!("Conflict: {error:?}");
         ApiError::ConflictInRequest(error)
     }
 }
@@ -57,10 +59,14 @@ impl error::ResponseError for ApiError {
     }
 }
 
-impl From<r2d2::Error> for ApiError {
-    fn from(error: r2d2::Error) -> ApiError {
-        let error = anyhow::Error::new(error).context("r2d2 error");
-        ApiError::new_internal(error)
+impl From<RepositoryError> for ApiError {
+    fn from(value: RepositoryError) -> Self {
+        match value {
+            RepositoryError::ValidationError(err) => Self::new_validation(err),
+            RepositoryError::Conflict(err) => Self::new_conflict(err),
+            RepositoryError::InternalError(err) => Self::new_internal(err),
+            RepositoryError::NotFound => Self::NotFound,
+        }
     }
 }
 
@@ -68,22 +74,5 @@ impl From<BlockingError> for ApiError {
     fn from(error: BlockingError) -> Self {
         let error = anyhow!(error).context("Blocking error");
         ApiError::new_internal(error)
-    }
-}
-
-impl From<diesel::result::Error> for ApiError {
-    fn from(value: diesel::result::Error) -> Self {
-        match value {
-            diesel::result::Error::InvalidCString(_) => todo!(),
-            diesel::result::Error::DatabaseError(
-                diesel::result::DatabaseErrorKind::UniqueViolation,
-                err,
-            ) => Self::new_conflict(err.message()),
-            diesel::result::Error::NotFound => Self::NotFound,
-            err => {
-                let err = anyhow!(err).context("diesel error");
-                Self::new_internal(err)
-            }
-        }
     }
 }
