@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "http_server",
-    "product_pricing"
+    "pool_and_migrations",
+    "product_pricing",
 ]

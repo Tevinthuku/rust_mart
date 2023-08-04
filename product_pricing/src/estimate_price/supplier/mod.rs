@@ -16,6 +16,7 @@ pub struct SupplierPriceExtractor;
 impl SupplierPriceExtractor {
     pub async fn get_supplier_prices(sku: SKU) -> anyhow::Result<Vec<SupplierWithPrice>> {
         let suppliers: Vec<&dyn SupplierPrice> = vec![&cheram_suppliers::CheramSuppliers];
+        
         let supplier_price_futures = suppliers
             .iter()
             .map(|supplier| async { (supplier.name(), supplier.price(sku.clone()).await) });
