@@ -4,3 +4,12 @@ members = [
     "pool_and_migrations",
     "product_pricing",
 ]
+
+
+[workspace.dependencies]
+uuid = { version = "1.4.1", features = ["v4", "serde"] }
+serde_json = "1.0.104"
+serde = { version = "1.0.152", features = ["derive"] }
+thiserror = "1.0"
+anyhow = "1.0.72"
+sqlx = { version = "0.6", features = [ "offline", "runtime-tokio-native-tls" , "postgres", "uuid", "time", "chrono", "json"  ] }

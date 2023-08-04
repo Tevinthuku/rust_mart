@@ -1,2 +1,4 @@
 pub mod contracts;
-pub(crate) mod estimate_price;
+pub mod price;
+pub(crate) mod price_estimate;
+pub(crate) mod product;

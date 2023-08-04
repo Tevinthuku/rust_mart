@@ -1,5 +1,6 @@
-use crate::estimate_price::{
-    competitors::CompetitorPriceExtractor, supplier::SupplierPriceExtractor,
+use crate::{
+    price::{Margin, Price},
+    price_estimate::{competitors::CompetitorPriceExtractor, supplier::SupplierPriceExtractor},
 };
 
 mod competitors;
@@ -8,13 +9,19 @@ mod supplier;
 #[derive(Clone)]
 pub struct SKU(String);
 
+impl AsRef<str> for SKU {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
 pub struct PriceEstimator {
-    desired_margin: u8,
+    desired_margin: Margin,
 }
 
 pub struct CompetitionPrice {
     competitor: String,
-    price: u64,
+    price: Price,
 }
 
 pub enum ExchangeRate {
@@ -24,7 +31,7 @@ pub enum ExchangeRate {
 
 pub struct SupplierWithPrice {
     supplier: String,
-    price: u64,
+    price: Price,
 }
 
 pub enum BreakDownCategory {
@@ -39,27 +46,27 @@ pub enum Criteria {
 }
 
 pub struct BreakDown {
-    break_down_cost: u64,
+    break_down_cost: Price,
     criteria: Criteria,
     category: BreakDownCategory,
 }
 
 pub struct PriceEstimate {
-    total_estimate_price: u64,
-    mark_up: u64,
+    total_estimate_price: Price,
     break_downs: Vec<BreakDown>,
 }
 
 impl PriceEstimator {
-    pub fn new(desired_margin: u8) -> Self {
+    pub fn new(desired_margin: Margin) -> Self {
         Self { desired_margin }
     }
 
     pub async fn estimate(&self, sku: SKU) -> anyhow::Result<PriceEstimate> {
         let supplier_breakdown = {
             let supplier_prices = SupplierPriceExtractor::get_supplier_prices(sku.clone()).await?;
-            let median_supplier_price = supplier_prices.iter().map(|data| data.price).sum::<u64>()
-                / supplier_prices.len() as u64;
+            let median_supplier_price =
+                supplier_prices.iter().map(|data| data.price).sum::<Price>()
+                    / supplier_prices.len();
             BreakDown {
                 break_down_cost: median_supplier_price,
                 criteria: Criteria::MeanPrice,
@@ -79,7 +86,7 @@ impl PriceEstimator {
                     category: BreakDownCategory::Competition(competitor_prices),
                 },
                 None => BreakDown {
-                    break_down_cost: 0,
+                    break_down_cost: Price::zero(),
                     criteria: Criteria::Custom(
                         "We couldn't find any competitor prices on the product".to_string(),
                     ),
@@ -96,23 +103,21 @@ impl PriceEstimator {
         let non_zero_break_down_costs = break_downs
             .iter()
             .filter_map(|b| {
-                if b.break_down_cost != 0 {
+                if !b.break_down_cost.is_zero() {
                     Some(b.break_down_cost)
                 } else {
                     None
                 }
             })
             .collect::<Vec<_>>();
-        let count = non_zero_break_down_costs.len();
-        let sum = non_zero_break_down_costs.iter().sum::<u64>();
 
-        let estimate_price = sum / count as u64;
+        let non_zero_break_down_count = non_zero_break_down_costs.len();
+        let sum = non_zero_break_down_costs.into_iter().sum::<Price>();
 
-        let mark_up = estimate_price * (self.desired_margin / 100) as u64;
+        let estimate_price = sum / non_zero_break_down_count;
 
         PriceEstimate {
-            total_estimate_price: estimate_price + mark_up,
-            mark_up,
+            total_estimate_price: estimate_price + self.desired_margin,
             break_downs,
         }
     }

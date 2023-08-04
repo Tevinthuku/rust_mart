@@ -6,3 +6,17 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+actix-web = "4"
+env_logger = "0.8"
+log = "0.4"
+tokio = { version = "1", features = ["full"] }
+
+
+pool_and_migrations = { path = "../pool_and_migrations" }
+product_pricing = { path = "../product_pricing" }
+
+anyhow.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+serde_json.workspace = true
+serde.workspace = true

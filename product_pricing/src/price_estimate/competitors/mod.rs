@@ -1,6 +1,8 @@
 use async_trait::async_trait;
 use futures::future::join_all;
 
+use crate::price::Price;
+
 use super::{CompetitionPrice, SKU};
 
 mod go_mart;
@@ -9,7 +11,7 @@ mod js_mart;
 #[async_trait]
 pub trait CompetitorPrice {
     fn name(&self) -> String;
-    async fn price(&self, sku: SKU) -> anyhow::Result<u64>;
+    async fn price(&self, sku: SKU) -> anyhow::Result<Price>;
 }
 
 pub struct CompetitorPriceExtractor {}

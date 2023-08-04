@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use crate::estimate_price::SKU;
+use crate::{price::Price, price_estimate::SKU};
 
 use super::CompetitorPrice;
 
@@ -11,7 +11,7 @@ impl CompetitorPrice for GoMart {
     fn name(&self) -> String {
         "Go Mart".to_string()
     }
-    async fn price(&self, sku: SKU) -> anyhow::Result<u64> {
+    async fn price(&self, sku: SKU) -> anyhow::Result<Price> {
         todo!()
     }
 }

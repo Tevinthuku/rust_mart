@@ -1,0 +1,14 @@
+{
+  "query": "\n            INSERT INTO product_price (product_id, price) VALUES ($1, $2)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1676c91a6f149460ea6e10c4b5c47d19fba8e619ac4b0ba4841bbbe6d0034038"
+}

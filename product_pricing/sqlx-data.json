@@ -1,0 +1,63 @@
+{
+  "db": "PostgreSQL",
+  "1676c91a6f149460ea6e10c4b5c47d19fba8e619ac4b0ba4841bbbe6d0034038": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Int4"
+        ]
+      }
+    },
+    "query": "\n            INSERT INTO product_price (product_id, price) VALUES ($1, $2)\n        "
+  },
+  "a4a5c99277a2884ce7adaf8f58c4759ff681c01d70186ff52fc45678194d8814": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Int4",
+          "Timestamptz",
+          "Timestamptz"
+        ]
+      }
+    },
+    "query": "\n            INSERT INTO product_flash_sale (product_id, price, start_date, end_date) VALUES ($1, $2, $3, $4)\n            "
+  },
+  "ab4ca0471ff4bed31c1ec97e321cff7b45d2d96dd020ef44dd0d1f9e2f3395c3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "price",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "start_date",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "end_date",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\n                SELECT price, start_date, end_date  FROM product_flash_sale WHERE product_id = $1 AND NOW() BETWEEN start_date AND end_date LIMIT 1\n            "
+  }
+}
