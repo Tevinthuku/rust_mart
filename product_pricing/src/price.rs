@@ -7,11 +7,11 @@ use std::{iter::Sum, ops::Add};
 // there's probably a better way of handling this, but
 // this will do for the demo; At the DB level,
 // we have a check that ensures the price is not less than zero;
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Debug)]
 #[serde(transparent)]
 pub struct Cents(i32);
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Debug)]
 #[serde(transparent)]
 pub struct Price(Cents);
 

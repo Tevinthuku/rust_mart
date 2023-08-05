@@ -5,7 +5,7 @@ use chrono::{DateTime, Utc};
 use pool_and_migrations::pool::Pool;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct FlashSale {
     price: Price,
     start: DateTime<Utc>,
@@ -69,9 +69,28 @@ impl Product {
     ) -> anyhow::Result<Self> {
         if let Some(current_flash_sale) = &self.active_flash_sale {
             if start >= current_flash_sale.start && end <= current_flash_sale.end {
-                bail!("There already exists a flash sale for the set time")
+                bail!("There already exists a flash sale for the set time {current_flash_sale:?}")
             }
         };
+
+        // might not be the best way to check this, but this will do for the demo;
+        let existing_flash_sale_for_period = sqlx::query!(
+            r#"
+            SELECT price, start_date, end_date FROM product_flash_sale WHERE product_id = $1 AND start_date <= $2 AND end_date >= $3
+            "#, self.id, start, end
+        ).fetch_optional(pool.get()).await.context("Failed to fetch upcoming flash_sales")?.map(|row| {
+            Price::new(row.price).map(|price| {
+                FlashSale {
+                    price,
+                    start: row.start_date,
+                    end: row.end_date
+                }
+            })
+        }).transpose()?;
+
+        if let Some(existing_flash_sale) = existing_flash_sale_for_period {
+            bail!("There already exists a flash sale for the specified period {existing_flash_sale:?}")
+        }
 
         sqlx::query!(
             r#"
