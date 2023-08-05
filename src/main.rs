@@ -1,8 +1,8 @@
+pub mod cart;
 pub mod errors;
 pub mod pool;
 mod product;
 pub mod schema;
-pub mod cart;
 use std::io;
 
 use actix_web::{middleware::Logger, web, App, HttpServer};
@@ -19,6 +19,7 @@ async fn main() -> io::Result<()> {
 
         App::new()
             .configure(product::init_routes)
+            .configure(cart::init_routes)
             .wrap(logger)
             .app_data(web::Data::new(pool.clone()))
     })
