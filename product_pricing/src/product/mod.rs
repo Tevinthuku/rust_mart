@@ -68,7 +68,7 @@ impl Product {
         pool: &Pool,
     ) -> anyhow::Result<Self> {
         if let Some(current_flash_sale) = &self.active_flash_sale {
-            if current_flash_sale.start > start && current_flash_sale.end < end {
+            if start >= current_flash_sale.start && end <= current_flash_sale.end {
                 bail!("There already exists a flash sale for the set time")
             }
         };
