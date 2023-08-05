@@ -3,7 +3,7 @@ use futures::future::join_all;
 
 use crate::price::Price;
 
-use super::{CompetitionPrice, SKU};
+use super::{CompetitionPrice, Sku};
 
 mod go_mart;
 mod js_mart;
@@ -11,13 +11,13 @@ mod js_mart;
 #[async_trait]
 pub trait CompetitorPrice {
     fn name(&self) -> String;
-    async fn price(&self, sku: SKU) -> anyhow::Result<Price>;
+    async fn price(&self, sku: Sku) -> anyhow::Result<Price>;
 }
 
 pub struct CompetitorPriceExtractor {}
 
 impl CompetitorPriceExtractor {
-    pub async fn get_prices(sku: SKU) -> Vec<CompetitionPrice> {
+    pub async fn get_prices(sku: Sku) -> Vec<CompetitionPrice> {
         let competitors: Vec<&dyn CompetitorPrice> = vec![&go_mart::GoMart {}, &js_mart::JsMart {}];
         let competitor_futures = competitors
             .iter()

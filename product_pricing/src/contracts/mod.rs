@@ -9,6 +9,7 @@ mod product_price;
 
 pub use new_flash_sale::DateRange;
 
+#[derive(Clone)]
 pub struct PricingContracts {
     pool: Arc<Pool>,
 }

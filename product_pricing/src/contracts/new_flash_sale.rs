@@ -1,4 +1,5 @@
 use chrono::{DateTime, Utc};
+use serde::Deserialize;
 
 use crate::{
     price::Price,
@@ -7,13 +8,14 @@ use crate::{
 
 use super::PricingContracts;
 
+#[derive(Deserialize, Clone)]
 pub struct DateRange {
     pub start: DateTime<Utc>,
     pub end: DateTime<Utc>,
 }
 
 impl PricingContracts {
-    async fn new_flash_sale(
+    pub async fn new_flash_sale(
         &self,
         product: uuid::Uuid,
         range: DateRange,

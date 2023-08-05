@@ -1,19 +1,22 @@
+use anyhow::{bail, Ok};
+use serde::{Deserialize, Serialize};
 use std::{fmt::Display, ops::Div};
 use std::{iter::Sum, ops::Add};
-
-use anyhow::bail;
 
 // The underlying type is i32;
 // there's probably a better way of handling this, but
 // this will do for the demo; At the DB level,
 // we have a check that ensures the price is not less than zero;
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct Cents(i32);
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct Price(Cents);
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct Margin(Cents);
 
 impl Display for Price {
@@ -22,19 +25,24 @@ impl Display for Price {
     }
 }
 
-impl TryFrom<i32> for Price {
-    type Error = anyhow::Error;
-
-    fn try_from(value: i32) -> Result<Self, Self::Error> {
+impl Margin {
+    pub fn new(value: impl Into<i32>) -> anyhow::Result<Self> {
+        let value = value.into();
         if value < 0 {
             bail!("Value cannot be less than zero")
         }
-
-        Ok(Price(Cents(value)))
+        Ok(Margin(Cents(value)))
     }
 }
 
 impl Price {
+    pub fn new(value: impl Into<i32>) -> anyhow::Result<Self> {
+        let value = value.into();
+        if value < 0 {
+            bail!("Value cannot be less than zero")
+        }
+        Ok(Price(Cents(value)))
+    }
     pub(crate) fn is_zero(&self) -> bool {
         self.0 .0 == 0
     }

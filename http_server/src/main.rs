@@ -2,6 +2,8 @@ use std::{env, sync::Arc};
 
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use anyhow::Context;
+pub mod errors;
+mod routes;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -21,8 +23,10 @@ async fn main() -> anyhow::Result<()> {
     env_logger::init();
     HttpServer::new(move || {
         let logger = Logger::default();
-
-        App::new().wrap(logger)
+        App::new()
+            .wrap(logger)
+            .service(web::scope("/api").configure(routes::init_routes))
+            .app_data(web::Data::new(product_pricing_contracts.clone()))
     })
     .bind(("127.0.0.1", 8080))
     .context("Failed to bind http server")?

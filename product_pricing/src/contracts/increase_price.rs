@@ -6,7 +6,7 @@ use crate::{
 use super::PricingContracts;
 
 impl PricingContracts {
-    async fn increase_price(
+    pub async fn increase_price(
         &self,
         product: uuid::Uuid,
         new_price: Price,

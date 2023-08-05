@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 use crate::{
     price::{Margin, Price},
     price_estimate::{competitors::CompetitorPriceExtractor, supplier::SupplierPriceExtractor},
@@ -7,11 +9,18 @@ mod competitors;
 mod supplier;
 
 #[derive(Clone)]
-pub struct SKU(String);
+pub struct Sku(String);
 
-impl AsRef<str> for SKU {
+impl AsRef<str> for Sku {
     fn as_ref(&self) -> &str {
         &self.0
+    }
+}
+
+impl From<&str> for Sku {
+    fn from(value: &str) -> Self {
+        let value = value.to_string();
+        Sku(value)
     }
 }
 
@@ -19,38 +28,41 @@ pub struct PriceEstimator {
     desired_margin: Margin,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct CompetitionPrice {
     competitor: String,
     price: Price,
 }
 
-pub enum ExchangeRate {
-    Eur { value: usize },
-    Usd { value: usize },
-}
-
+#[derive(Serialize, Deserialize)]
 pub struct SupplierWithPrice {
     supplier: String,
     price: Price,
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "type", content = "data")]
 pub enum BreakDownCategory {
     CostOfGoods(Vec<SupplierWithPrice>),
     Competition(Vec<CompetitionPrice>),
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "type", content = "data")]
 pub enum Criteria {
     MeanPrice,
     MinimumPrice,
     Custom(String),
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct BreakDown {
     break_down_cost: Price,
     criteria: Criteria,
     category: BreakDownCategory,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct PriceEstimate {
     total_estimate_price: Price,
     break_downs: Vec<BreakDown>,
@@ -61,7 +73,7 @@ impl PriceEstimator {
         Self { desired_margin }
     }
 
-    pub async fn estimate(&self, sku: SKU) -> anyhow::Result<PriceEstimate> {
+    pub async fn estimate(&self, sku: Sku) -> anyhow::Result<PriceEstimate> {
         let supplier_breakdown = {
             let supplier_prices = SupplierPriceExtractor::get_supplier_prices(sku.clone()).await?;
             let median_supplier_price =

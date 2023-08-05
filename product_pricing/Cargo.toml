@@ -10,11 +10,12 @@ async-trait = "0.1.72"
 anyhow = "1.0.72"
 futures = "0.3.28"
 log = "0.4.19"
-chrono = { version = "0.4.26", features = ["serde"] }
 
 
 pool_and_migrations = { path = "../pool_and_migrations" }
 
+chrono.workspace = true
 uuid.workspace = true
 sqlx.workspace = true
 serde.workspace = true
+serde_json.workspace = true

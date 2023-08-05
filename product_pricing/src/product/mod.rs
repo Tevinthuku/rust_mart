@@ -1,15 +1,18 @@
-use crate::{price::Price, price_estimate::SKU};
+use crate::price::Price;
 use anyhow::bail;
 use anyhow::Context;
 use chrono::{DateTime, Utc};
 use pool_and_migrations::pool::Pool;
+use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Deserialize)]
 pub struct FlashSale {
     price: Price,
     start: DateTime<Utc>,
     end: DateTime<Utc>,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Product {
     id: uuid::Uuid,
     active_flash_sale: Option<FlashSale>,
@@ -23,7 +26,7 @@ impl Product {
                 SELECT price, start_date, end_date  FROM product_flash_sale WHERE product_id = $1 AND NOW() BETWEEN start_date AND end_date LIMIT 1
             "#, id
         ).fetch_optional(pool.get()).await?.map(|row| {
-            Price::try_from(row.price).map(|price| {
+            Price::new(row.price).map(|price| {
                 FlashSale {
                     price,
                     start: row.start_date,
@@ -40,7 +43,7 @@ impl Product {
         )
         .fetch_optional(pool.get())
         .await?
-        .and_then(|row| row.price.map(Price::try_from))
+        .and_then(|row| row.price.map(Price::new))
         .transpose()?;
 
         Ok(Self {
