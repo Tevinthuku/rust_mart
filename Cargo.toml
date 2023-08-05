@@ -3,6 +3,7 @@ members = [
     "http_server",
     "pool_and_migrations",
     "product_pricing",
+    "product_metadata"
 ]
 
 
@@ -14,3 +15,4 @@ thiserror = "1.0"
 anyhow = "1.0.72"
 sqlx = { version = "0.6", features = [ "offline", "runtime-tokio-native-tls" , "postgres", "uuid", "time", "chrono", "json"  ] }
 chrono = { version = "0.4.26", features = ["serde"] }
+futures = "0.3.28"

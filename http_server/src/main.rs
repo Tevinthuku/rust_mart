@@ -19,6 +19,7 @@ async fn main() -> anyhow::Result<()> {
         .await
         .map(Arc::new)?;
     let product_pricing_contracts = product_pricing::contracts::PricingContracts::new(pool.clone());
+    let product_metadata_contracts = product_metadata::ProductMetaDataContracts::new(pool);
 
     env_logger::init();
     HttpServer::new(move || {
@@ -27,6 +28,7 @@ async fn main() -> anyhow::Result<()> {
             .wrap(logger)
             .service(web::scope("/api").configure(routes::init_routes))
             .app_data(web::Data::new(product_pricing_contracts.clone()))
+            .app_data(web::Data::new(product_metadata_contracts.clone()))
     })
     .bind(("127.0.0.1", 8080))
     .context("Failed to bind http server")?

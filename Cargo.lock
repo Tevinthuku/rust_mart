@@ -1339,6 +1339,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "product_metadata"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "futures",
+ "log",
+ "pool_and_migrations",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "uuid",
+]
+
+[[package]]
 name = "product_pricing"
 version = "0.1.0"
 dependencies = [
@@ -1459,8 +1475,10 @@ dependencies = [
  "anyhow",
  "chrono",
  "env_logger",
+ "futures",
  "log",
  "pool_and_migrations",
+ "product_metadata",
  "product_pricing",
  "serde",
  "serde_json",

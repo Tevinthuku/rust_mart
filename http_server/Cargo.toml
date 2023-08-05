@@ -14,10 +14,12 @@ tokio = { version = "1", features = ["full"] }
 
 pool_and_migrations = { path = "../pool_and_migrations" }
 product_pricing = { path = "../product_pricing" }
+product_metadata = { path = "../product_metadata" }
 
 anyhow.workspace = true
 thiserror.workspace = true
 uuid.workspace = true
 serde_json.workspace = true
 serde.workspace = true
+futures.workspace = true
 chrono.workspace = true

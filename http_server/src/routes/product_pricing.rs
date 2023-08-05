@@ -61,7 +61,7 @@ async fn price_estimate(
 }
 
 #[derive(Serialize)]
-struct ProductPriceResponse {
+pub struct ProductPriceResponse {
     price: Option<Price>,
 }
 
